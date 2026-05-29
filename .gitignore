@@ -1,0 +1,8 @@
+bin/
+data/
+logs/
+/raftkv
+/raftkvctl
+*.db
+*.db.lock
+.DS_Store

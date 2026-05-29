@@ -1,0 +1,43 @@
+services:
+  n1:
+    build: .
+    command: ["-config", "/app/configs/docker-n1.yaml"]
+    ports:
+      - "7001:7001"
+      - "9001:9001"
+    volumes:
+      - n1-data:/data
+
+  n2:
+    build: .
+    command: ["-config", "/app/configs/docker-n2.yaml"]
+    ports:
+      - "7002:7002"
+      - "9002:9002"
+    volumes:
+      - n2-data:/data
+
+  n3:
+    build: .
+    command: ["-config", "/app/configs/docker-n3.yaml"]
+    ports:
+      - "7003:7003"
+      - "9003:9003"
+    volumes:
+      - n3-data:/data
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - n1
+      - n2
+      - n3
+
+volumes:
+  n1-data:
+  n2-data:
+  n3-data:

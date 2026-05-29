@@ -1,0 +1,11 @@
+id: n2
+addr: 0.0.0.0:7002
+metrics_addr: 0.0.0.0:9002
+data_path: /data/n2.db
+election_ticks: 12
+election_jitter_ticks: 10
+heartbeat_ticks: 2
+snapshot_threshold: 1024
+peers:
+  n1: n1:7001
+  n3: n3:7003

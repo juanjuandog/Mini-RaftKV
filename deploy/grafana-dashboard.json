@@ -1,0 +1,40 @@
+{
+  "title": "Mini-RaftKV",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Committed Entries",
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+      "targets": [
+        {"expr": "rate(raftkv_committed_entries_total[1m])", "legendFormat": "{{node}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Applied Entries",
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "targets": [
+        {"expr": "rate(raftkv_applied_entries_total[1m])", "legendFormat": "{{node}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Role Changes",
+      "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+      "targets": [
+        {"expr": "increase(raftkv_role_changes_total[5m])", "legendFormat": "{{node}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Replication Errors",
+      "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+      "targets": [
+        {"expr": "rate(raftkv_replication_errors_total[1m])", "legendFormat": "{{node}}"}
+      ]
+    }
+  ]
+}
