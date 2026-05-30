@@ -19,6 +19,7 @@
 - gRPC 服务接口
 - Protobuf 接口定义
 - Prometheus 指标暴露
+- 内置 Debug Dashboard，可在浏览器查看节点角色、Leader、term、commitIndex 和 Snapshot 状态
 - 客户端命令行工具 `raftkvctl`
 - YAML 配置文件启动
 - Docker Compose 一键启动三节点集群和 Prometheus
@@ -260,6 +261,20 @@ make demo
 - 等待重新选主
 - 在新 Leader 上继续写入
 
+运行期间可以打开浏览器查看节点状态：
+
+```text
+http://127.0.0.1:9001/debug/ui
+http://127.0.0.1:9002/debug/ui
+http://127.0.0.1:9003/debug/ui
+```
+
+也可以直接查看 JSON 状态接口：
+
+```text
+http://127.0.0.1:9001/debug/status
+```
+
 日志会输出到：
 
 ```text
@@ -330,6 +345,32 @@ http://127.0.0.1:9003/metrics
 - 已应用日志数量
 - Snapshot 生成次数
 - 日志复制失败次数
+
+## 查看节点 Debug 状态
+
+项目内置了一个轻量浏览器 Dashboard，不需要额外前端服务：
+
+```text
+http://127.0.0.1:9001/debug/ui
+```
+
+页面会自动刷新并展示：
+
+- 当前节点 ID
+- 当前角色：Follower、Candidate 或 Leader
+- 当前 Leader
+- currentTerm
+- commitIndex
+- lastApplied
+- lastLogIndex / lastLogTerm
+- snapshotIndex / snapshotTerm
+- peer 的 nextIndex / matchIndex
+
+如果只想看 JSON，可以访问：
+
+```text
+http://127.0.0.1:9001/debug/status
+```
 
 ## 和简历描述的对应关系
 
@@ -453,7 +494,7 @@ Raft 的 term、vote、log、snapshot 状态会持久化到 bbolt。节点重启
 
 ### 亮点八：工程化完整
 
-项目包含标准 Protobuf 生成代码、gRPC、Prometheus、Grafana Dashboard、配置文件、Docker Compose、Makefile、客户端 CLI、端到端 demo、压测脚本、CI 和集成测试，具备完整工程项目形态。
+项目包含标准 Protobuf 生成代码、gRPC、Prometheus、内置 Debug Dashboard、Grafana Dashboard、配置文件、Docker Compose、Makefile、客户端 CLI、端到端 demo、压测脚本、CI 和集成测试，具备完整工程项目形态。
 
 ## Protobuf 说明
 

@@ -115,6 +115,50 @@ func (n *Node) LeaderID() string {
 	return n.leaderID
 }
 
+func (n *Node) Status() NodeStatus {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	leaderID := n.leaderID
+	if n.state == Leader {
+		leaderID = n.id
+	}
+	peers := make(map[string]string, len(n.peers))
+	for id, addr := range n.peers {
+		peers[id] = addr
+	}
+	nextIndex := make(map[string]uint64, len(n.nextIndex))
+	for id, idx := range n.nextIndex {
+		nextIndex[id] = idx
+	}
+	matchIndex := make(map[string]uint64, len(n.matchIndex))
+	for id, idx := range n.matchIndex {
+		matchIndex[id] = idx
+	}
+	return NodeStatus{
+		ID:                  n.id,
+		State:               n.state,
+		LeaderID:            leaderID,
+		CurrentTerm:         n.currentTerm,
+		VotedFor:            n.votedFor,
+		CommitIndex:         n.commitIndex,
+		LastApplied:         n.lastApplied,
+		LastLogIndex:        n.lastIndexLocked(),
+		LastLogTerm:         n.lastLogTermLocked(),
+		SnapshotIndex:       n.snapshotIndex,
+		SnapshotTerm:        n.snapshotTerm,
+		LogLength:           len(n.log),
+		Peers:               peers,
+		NextIndex:           nextIndex,
+		MatchIndex:          matchIndex,
+		ElectionTicks:       n.electionTicks,
+		ElectionElapsed:     n.elapsed,
+		HeartbeatTicks:      n.heartbeatTicks,
+		SnapshotThreshold:   n.snapshotThreshold,
+		Stopped:             n.stopped,
+		ElectionJitterTicks: n.electionJitterTicks,
+	}
+}
+
 func (n *Node) Tick() {
 	n.mu.Lock()
 	if n.stopped {

@@ -38,6 +38,8 @@ bin/raftkv -config configs/n3.yaml > logs/n3.log 2>&1 &
 N3=$!
 
 echo "cluster started: n1=$N1 n2=$N2 n3=$N3"
+echo "debug ui: http://127.0.0.1:9001/debug/ui http://127.0.0.1:9002/debug/ui http://127.0.0.1:9003/debug/ui"
+echo "status json: http://127.0.0.1:9001/debug/status"
 sleep 3
 
 echo "== put through n1 =="

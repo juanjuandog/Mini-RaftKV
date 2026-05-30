@@ -38,6 +38,30 @@ type LogEntry struct {
 	Command Command
 }
 
+type NodeStatus struct {
+	ID                  string            `json:"id"`
+	State               State             `json:"state"`
+	LeaderID            string            `json:"leaderId"`
+	CurrentTerm         uint64            `json:"currentTerm"`
+	VotedFor            string            `json:"votedFor,omitempty"`
+	CommitIndex         uint64            `json:"commitIndex"`
+	LastApplied         uint64            `json:"lastApplied"`
+	LastLogIndex        uint64            `json:"lastLogIndex"`
+	LastLogTerm         uint64            `json:"lastLogTerm"`
+	SnapshotIndex       uint64            `json:"snapshotIndex"`
+	SnapshotTerm        uint64            `json:"snapshotTerm"`
+	LogLength           int               `json:"logLength"`
+	Peers               map[string]string `json:"peers"`
+	NextIndex           map[string]uint64 `json:"nextIndex,omitempty"`
+	MatchIndex          map[string]uint64 `json:"matchIndex,omitempty"`
+	ElectionTicks       int               `json:"electionTicks"`
+	ElectionElapsed     int               `json:"electionElapsed"`
+	HeartbeatTicks      int               `json:"heartbeatTicks"`
+	SnapshotThreshold   uint64            `json:"snapshotThreshold"`
+	Stopped             bool              `json:"stopped"`
+	ElectionJitterTicks int               `json:"electionJitterTicks"`
+}
+
 type RequestVoteRequest struct {
 	Term         uint64
 	CandidateID  string
