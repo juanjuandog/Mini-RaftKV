@@ -340,6 +340,23 @@ func TestLinearizableReadRequiresQuorum(t *testing.T) {
 	}
 }
 
+func TestLinearizableReadSucceedsWithMajority(t *testing.T) {
+	nodes, transport := newTestCluster(t, 3, 100)
+	leader := electLeader(t, nodes)
+	if err := leader.Put("majority-read", "ok", "client-read", 1); err != nil {
+		t.Fatalf("initial put: %v", err)
+	}
+	transport.Block(firstFollower(nodes).ID(), true)
+
+	value, ok, err := leader.LinearizableGet("majority-read")
+	if err != nil {
+		t.Fatalf("linearizable read with majority: %v", err)
+	}
+	if !ok || value != "ok" {
+		t.Fatalf("linearizable read value=%q ok=%v", value, ok)
+	}
+}
+
 func newTestCluster(t *testing.T, size int, snapshotThreshold uint64) ([]*Node, *MemoryTransport) {
 	t.Helper()
 	transport := NewMemoryTransport()

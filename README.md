@@ -29,7 +29,7 @@
 - 单元测试覆盖选主、复制、删除、冲突修复、重复请求、重启恢复、Leader 故障、网络分区和 Snapshot
 - 真实 TCP gRPC 集成测试覆盖客户端读写和 Follower 转发
 - 端到端 demo 脚本覆盖启动集群、读写、幂等请求和 Leader 故障恢复
-- GitHub Actions 自动运行 Protobuf 生成校验、测试和构建
+- GitHub Actions 自动运行测试和构建
 - 简单压测脚本和 Grafana Dashboard 示例
 
 ## 技术栈
@@ -245,6 +245,28 @@ go run ./cmd/raftkvctl -addr 127.0.0.1:7001 get idempotent
 first
 ```
 
+## 查看集群状态
+
+除了浏览器 Debug 页面，也可以直接用客户端查看节点状态：
+
+```bash
+go run ./cmd/raftkvctl status -http 127.0.0.1:9001
+```
+
+查看三节点集群：
+
+```bash
+go run ./cmd/raftkvctl cluster -http-addrs 127.0.0.1:9001,127.0.0.1:9002,127.0.0.1:9003
+```
+
+持续刷新，适合观察 Leader 切换：
+
+```bash
+go run ./cmd/raftkvctl watch -http-addrs 127.0.0.1:9001,127.0.0.1:9002,127.0.0.1:9003
+```
+
+输出会包含节点地址、节点 ID、角色、Leader、term、commitIndex、lastApplied 和 snapshotIndex。
+
 ## 运行端到端 Demo
 
 ```bash
@@ -282,6 +304,26 @@ logs/n1.log
 logs/n2.log
 logs/n3.log
 ```
+
+## 运行 Leader 故障恢复演示
+
+如果只想重点演示故障恢复，可以运行：
+
+```bash
+make failover-demo
+```
+
+这个脚本会自动完成：
+
+- 启动三节点集群
+- 发现当前 Leader
+- 写入一条数据
+- 杀掉 Leader
+- 等待新 Leader 选出
+- 继续写入新数据
+- 验证故障前后的数据仍然可以读取
+
+运行时可以同时打开 Debug UI，观察 Leader 和 term 的变化。
 
 ## 简单压测
 
@@ -371,6 +413,24 @@ http://127.0.0.1:9001/debug/ui
 ```text
 http://127.0.0.1:9001/debug/status
 ```
+
+## 一致性语义
+
+写请求不会直接修改本地 KV，而是先追加到 Leader 的 Raft 日志。只有当日志被多数派复制并提交后，才会按顺序 apply 到状态机并返回成功。
+
+读请求也不会从任意 Follower 直接读取。Follower 收到读请求会转发给 Leader；Leader 在读取本地状态机前，会先向多数派发送心跳确认自己仍然拥有领导权。如果 Leader 被网络隔离到少数派，读写都会返回 `quorum unavailable`，避免读到旧 Leader 的过期数据。
+
+对应测试位于：
+
+```text
+internal/raft/cluster_test.go
+```
+
+重点测试包括：
+
+- `TestLeaderRequiresQuorumToCommitWrites`
+- `TestLinearizableReadRequiresQuorum`
+- `TestLinearizableReadSucceedsWithMajority`
 
 ## 和简历描述的对应关系
 

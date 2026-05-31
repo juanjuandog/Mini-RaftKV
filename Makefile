@@ -1,4 +1,4 @@
-.PHONY: proto test build run-n1 run-n2 run-n3 run-cluster demo bench clean docker-up docker-down
+.PHONY: proto test build run-n1 run-n2 run-n3 run-cluster demo failover-demo bench clean docker-up docker-down
 
 proto:
 	$$(go env GOPATH)/bin/buf generate api --template buf.gen.yaml
@@ -24,6 +24,9 @@ run-cluster:
 
 demo:
 	scripts/demo-flow.sh
+
+failover-demo:
+	scripts/failover-demo.sh
 
 bench:
 	scripts/bench.sh
